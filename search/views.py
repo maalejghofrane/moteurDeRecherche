@@ -10,12 +10,12 @@ def upload_file(request):
         print("Le répertoire courant est : " + os.getcwd())
         form = UploadFileForm(request.POST,request.FILES)
         file = request.FILES['file']
-        document = Predict.objects.create(name='hey', file=file)
+        document = Predict.objects.create(name='requete', file=file)
         document.save()
         DATADIR = file
         data_dir = pathlib.Path(str(DATADIR))
         msg=data_dir
-        list =['1','2','3']
+        list =['chat.jpg','chat.jpg']
         return render(request, "search/search.html",{'form':form, 'msg':msg,'list':list})
     else : 
         form=UploadFileForm()

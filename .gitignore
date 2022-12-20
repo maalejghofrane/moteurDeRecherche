@@ -6,6 +6,7 @@ __pycache__
 db.sqlite3
 media
 my_env
+static
 # Backup files # 
 *.bak 
 
