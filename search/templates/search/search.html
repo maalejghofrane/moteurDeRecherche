@@ -9,13 +9,12 @@ img {
     text-align:center;
     color : #FFFFFF;
 }
-.fixed {
-    position: fixed;
-}
+
     </style>
         
     <div class="col-sm-12 ">
         <h1 class="revarseImage">Reverse Image Search</h1>
+        <p class="revarseImage"> Find where images appear online. <a class="revarseImage" href="/">How to use TinEye.</a></p>
     <div>
     <!-- <div class="mb-4 d-flex justify-content-center">
         <img src="https://img.icons8.com/color/480/pink-ribbon.png"
@@ -34,7 +33,7 @@ img {
         {% if msg %} 
         <h4>Image requete : </h4>
         {% load static %}
-        <img src="{% static '/9223.png' %}"
+        <img src="static/{{msg}}"
         alt="image requete" style="width: 400px;"/>
         <h4>Résultat :</h4>
         {% for o in list %}
