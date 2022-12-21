@@ -94,96 +94,6 @@ for x in range(0, 239, 1) :
       o9=image3Gray[x+1][y+1]
       corI3[o][o9]=corI3[o][o9]+1
 
-#Lire Image Requete : 
-img10 = io.imread(os.getcwd()+'/static/dataset/image1.png') 
-img10Gray = cv.cvtColor(img10, cv.COLOR_BGR2GRAY)
-print(img10Gray)
-corI10 = [[1 for _ in range(256)] for _ in range(256)]
-sigreq =[0 for _ in range(256)]
-distance10=0
-
-# Calcule corrélogramme de l'image 10 : 
-for x in range(0, 239, 1) : 
-  for y in range(0, 239, 1) : 
-      o = img10Gray[x][y]
-      o1=img10Gray[x-1][y-1]
-      corI10[o][o1]=corI10[o][o1]+1
-      o2=img10Gray[x-1][y]
-      corI10[o][o2]=corI10[o][o2]+1
-      o3=img10Gray[x-1][y+1]
-      corI10[o][o3]=corI10[o][o3]+1
-      o4=img10Gray[x][y-1]
-      corI10[o][o4]=corI10[o][o4]+1
-      o6=img10Gray[x][y+1]
-      corI10[o][o6]=corI10[o][o6]+1
-      o7=img10Gray[x+1][y-1]
-      corI10[o][o7]=corI10[o][o7]+1
-      o8=img10Gray[x+1][y]
-      corI10[o][o8]=corI10[o][o8]+1
-      o9=img10Gray[x+1][y+1]
-      corI10[o][o9]=corI10[o][o9]+1
-
-#Calcul de la signature 
-for i in range(0, 256, 1) : 
-    sig1[i] = corI1[i][i]
-    sig2[i] = corI2[i][i]
-    sig3[i] = corI3[i][i]
-    sigreq[i] = corI10[i][i]
-
-#Calcule de la distance euclidienne : 
-d10vs1 = distance.euclidean(sigreq, sig1)
-d10vs2 = distance.euclidean(sigreq, sig2)
-d10vs3 = distance.euclidean(sigreq, sig3)
-
-
-#Calcule distancelokhra :
-for i in range(0, 256, 1) : 
-  distance1=distance1+min(sigreq[i],sig1[i])
-d10Inter1 = abs(1-(distance1/240**2))
-print(d10Inter1)
-
-for i in range(0, 256, 1) : 
-  distance2=distance2+min(sigreq[i],sig1[i])
-d10Inter2 = abs(1-(distance1/240**2))
-print(d10Inter2)
-
-for i in range(0, 256, 1) : 
-  distance3=distance3+min(sigreq[i],sig1[i])
-d10Inter3 = abs(1-(distance1/240**2))
-print(d10Inter3)
-
-#liste distance lokhra : 
-listDistances = [('image1.png','distance1',d10Inter1),
-                ('image2.png','distance2',d10Inter2),
-                ('image3.png','distance3',d10Inter3)]
-print(listDistances[0])
-
-#Liste distance euclidienne : 
-listDistancesEuclidienne = [('image1.png','distanceEuclidienne1',d10vs1),
-                            ('image2.png','distanceEuclidienne2',d10vs2),
-                            ('image3.png','distanceEuclidienne3',d10vs3)]
-print(listDistancesEuclidienne[0][0])
-
-dataSet = ['image1.png','image2.png','image3.png','image4.png','image5.png','image6.png',
-           'image7.png','image8.png','image9.png','image10.png']
-
-def sort_item(item):
-  return item[1]
-
-#Trier la liste de distance euclidienne : 
-listDistancesEuclidienne.sort(key=sort_item, reverse= False)
-print(listDistancesEuclidienne)
-
-#Récupérer la liste des images :
-listImage = []
-for i in listDistancesEuclidienne:
-    listImage.append(i[0])
-    
-#Récupérer la valeur de la signature : 
-listeSignatureEuclidinne = []
-for i in listDistancesEuclidienne:
-    listeSignatureEuclidinne.append(i[2])
-
 
 def upload_file(request):
     if request.method=="POST":
@@ -196,7 +106,99 @@ def upload_file(request):
         DATADIR = file
         data_dir = pathlib.Path(str(DATADIR))
         msg=data_dir
-        list =['chat.jpg','chat.jpg']
+        #Lire Image Requete : 
+        img10 = io.imread(os.getcwd()+'/static/requete/'+str(msg)) 
+        img10Gray = cv.cvtColor(img10, cv.COLOR_BGR2GRAY)
+        print(img10Gray)
+        corI10 = [[1 for _ in range(256)] for _ in range(256)]
+        sigreq =[0 for _ in range(256)]
+        distance10=0
+
+        # Calcule corrélogramme de l'image Requete : 
+        for x in range(0, 239, 1) : 
+            for y in range(0, 239, 1) : 
+                o = img10Gray[x][y]
+                o1=img10Gray[x-1][y-1]
+                corI10[o][o1]=corI10[o][o1]+1
+                o2=img10Gray[x-1][y]
+                corI10[o][o2]=corI10[o][o2]+1
+                o3=img10Gray[x-1][y+1]
+                corI10[o][o3]=corI10[o][o3]+1
+                o4=img10Gray[x][y-1]
+                corI10[o][o4]=corI10[o][o4]+1
+                o6=img10Gray[x][y+1]
+                corI10[o][o6]=corI10[o][o6]+1
+                o7=img10Gray[x+1][y-1]
+                corI10[o][o7]=corI10[o][o7]+1
+                o8=img10Gray[x+1][y]
+                corI10[o][o8]=corI10[o][o8]+1
+                o9=img10Gray[x+1][y+1]
+                corI10[o][o9]=corI10[o][o9]+1
+
+        #Calcul de la signature 
+        for i in range(0, 256, 1) : 
+            sig1[i] = corI1[i][i]
+            sig2[i] = corI2[i][i]
+            sig3[i] = corI3[i][i]
+            sigreq[i] = corI10[i][i]
+
+        #Calcule de la distance euclidienne : 
+        d10vs1 = distance.euclidean(sigreq, sig1)
+        d10vs2 = distance.euclidean(sigreq, sig2)
+        d10vs3 = distance.euclidean(sigreq, sig3)
+
+        #Initialisation des distances : 
+        distance1=0
+        distance2=0
+        distance3=0
+
+        #Calcule distancelokhra :
+        for i in range(0, 256, 1) : 
+         distance1=distance1+min(sigreq[i],sig1[i])
+        d10Inter1 = abs(1-(distance1/240**2))
+        print(d10Inter1)
+
+        for i in range(0, 256, 1) : 
+            distance2=distance2+min(sigreq[i],sig1[i])
+        d10Inter2 = abs(1-(distance1/240**2))
+        print(d10Inter2)
+
+        for i in range(0, 256, 1) : 
+            distance3=distance3+min(sigreq[i],sig1[i])
+            d10Inter3 = abs(1-(distance1/240**2))
+            print(d10Inter3)
+
+        #liste distance lokhra : 
+        listDistances = [('image1.png','distance1',d10Inter1),
+                         ('image2.png','distance2',d10Inter2),
+                         ('image3.png','distance3',d10Inter3)]
+        print(listDistances[0])
+
+        #Liste distance euclidienne : 
+        listDistancesEuclidienne = [('image1.png','distanceEuclidienne1',d10vs1),
+                                    ('image2.png','distanceEuclidienne2',d10vs2),
+                                    ('image3.png','distanceEuclidienne3',d10vs3)]
+        print(listDistancesEuclidienne[0][0])
+
+        dataSet = ['image1.png','image2.png','image3.png','image4.png','image5.png','image6.png',
+                    'image7.png','image8.png','image9.png','image10.png']
+
+        def sort_item(item):
+            return item[2]
+
+        #Trier la liste de distance euclidienne : 
+        listDistancesEuclidienne.sort(key=sort_item, reverse= False)
+        print(listDistancesEuclidienne)
+
+        #Récupérer la liste des images :
+        listImage = []
+        for i in listDistancesEuclidienne:
+            listImage.append(i[0])
+    
+        #Récupérer la valeur de la signature : 
+        listeSignatureEuclidinne = []
+        for i in listDistancesEuclidienne:
+            listeSignatureEuclidinne.append(i[2])
         return render(request, "search/search.html",{'form':form, 'msg':msg,'list':listImage,'listeSignatureEuclidinne':listeSignatureEuclidinne})
     else : 
         form=UploadFileForm()
