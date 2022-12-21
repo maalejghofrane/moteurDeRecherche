@@ -14,14 +14,25 @@ padding-left: 15px;
 padding-top: 15px;
 padding-bottom: 15px;
 }
+.distance {
+padding-left: 15px;
+padding-top: 10px;
+padding-bottom: 15px;
+font-weight: bold;
+}
+
+.bold{
+    font-weight: bold;
+}
 
     </style>
         
-    <div class="col-sm-12 ">
+<div class="col-sm-12 ">
         <h1 class="revarseImage">Reverse Image Search</h1>
         <p class="revarseImage"> Find where images appear online. <a class="revarseImage" href="/">How to use TinEye.</a></p>
-    <div>
-    <div class="d-flex justify-content-center">
+<div>
+    
+<div class="d-flex justify-content-center">
         <form  method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <p>
@@ -29,27 +40,32 @@ padding-bottom: 15px;
             </p>
             <p> <input class="btn btn-light" type="submit" value="Upload"/></p>
         </form>
+</div>
+
+    {% if msg %}
+    <hr>
+        <h4 class="d-flex justify-content-center bold">Image requete : </h4>
+        <div class="d-flex justify-content-center">
+            <img src="static/requete/{{msg}}" alt="image requete" style="width: 400px;"/>
         </div>
-        <!-- Affichage des images pertinentes !-->
-        {% if msg %}
-    <hr>
-        <h4>Image requete : </h4>
-        <img src="static/requete/{{msg}}"
-        alt="image requete" style="width: 400px;"/>
-    <hr>
-        <h4>Résultat :</h4>
+        <hr>
+        <h4 class="bold">Résultat :</h4>
+        <div class="container">
+        <div class="row">
         {% for o in list %}
-        <div>
+        <div class="col-sm-4">
         <img  src="static/dataset/{{o}}" class="imageResultat"
         alt="image requete" style="width: 400px;"/>
         </div>
         {% endfor %}
-
         {% for sign in listeSignatureEuclidinne %}
-        <div>
-       <p>signature : {{sign}}</p>
-        {% endfor %}
-
-        {% endif %}
+        <div class="col-sm-4">
+        <p class="distance"> distance : {{sign}} </p>
         </div>
+        {% endfor %}
+        {% endif %}
         {% endblock content%}
+    </div>
+
+    </div>
+</div>

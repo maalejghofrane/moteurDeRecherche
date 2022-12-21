@@ -10,7 +10,7 @@ from scipy.spatial import distance
 # Lire Image 1 : 
 img1 = io.imread(os.getcwd()+'/static/dataset/image1.png') 
 img1Gray = cv.cvtColor(img1, cv.COLOR_BGR2GRAY)
-print(img1Gray)
+# print(img1Gray)
 corI1 = [[1 for _ in range(256)] for _ in range(256)]
 sig1 =[0 for _ in range(256)]
 distance1=0
@@ -39,7 +39,7 @@ for x in range(0, 239, 1) :
 # Lire Image 2 : 
 img2 = io.imread(os.getcwd()+'/static/dataset/image2.png') 
 image2Gray = cv.cvtColor(img2, cv.COLOR_BGR2GRAY)
-print(image2Gray)
+# print(image2Gray)
 corI2 = [[1 for _ in range(256)] for _ in range(256)]
 sig2 =[0 for _ in range(256)]
 distance2=0
@@ -68,7 +68,7 @@ for x in range(0, 239, 1) :
 #Lire Image 3 :
 img3 = io.imread(os.getcwd()+'/static/dataset/image3.png') 
 image3Gray = cv.cvtColor(img3, cv.COLOR_BGR2GRAY)
-print(image3Gray)
+# print(image3Gray)
 corI3 = [[1 for _ in range(256)] for _ in range(256)]
 sig3 =[0 for _ in range(256)]
 distance3=0
