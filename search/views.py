@@ -54,7 +54,7 @@ def upload_file(request):
         data_dir = pathlib.Path(str(DATADIR))
         msg=data_dir
         sigreq,distance10,corI10=correlogramme("/static/requete/"+str(msg)); 
-
+        
         # #Lire Image Requete : 
         # image0 = io.imread(os.getcwd()+'/static/requete/'+str(msg)) 
         # image0Gray = cv.cvtColor(image0, cv.COLOR_BGR2GRAY)
