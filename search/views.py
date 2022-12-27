@@ -7,92 +7,128 @@ from skimage import io
 import cv2 as cv 
 from scipy.spatial import distance
 
-# Lire Image 1 : 
-img1 = io.imread(os.getcwd()+'/static/dataset/image1.png') 
-img1Gray = cv.cvtColor(img1, cv.COLOR_BGR2GRAY)
-# print(img1Gray)
-corI1 = [[1 for _ in range(256)] for _ in range(256)]
-sig1 =[0 for _ in range(256)]
-distance1=0
 
-# Calcule corrélogramme de l'image 1 avec distance d=1 : 
-for x in range(0, 239, 1) : 
-  for y in range(0, 239, 1) : 
-      o = img1Gray[x][y]
-      o1=img1Gray[x-1][y-1]
-      corI1[o][o1]=corI1[o][o1]+1
-      o2=img1Gray[x-1][y]
-      corI1[o][o2]=corI1[o][o2]+1
-      o3=img1Gray[x-1][y+1]
-      corI1[o][o3]=corI1[o][o3]+1
-      o4=img1Gray[x][y-1]
-      corI1[o][o4]=corI1[o][o4]+1
-      o6=img1Gray[x][y+1]
-      corI1[o][o6]=corI1[o][o6]+1
-      o7=img1Gray[x+1][y-1]
-      corI1[o][o7]=corI1[o][o7]+1
-      o8=img1Gray[x+1][y]
-      corI1[o][o8]=corI1[o][o8]+1
-      o9=img1Gray[x+1][y+1]
-      corI1[o][o9]=corI1[o][o9]+1
+#Création d'une fonction pour le calcul de corrélogramme : 
+def correlogramme (emplacement): 
+    emplacement = str(emplacement)
+    image = io.imread(os.getcwd()+emplacement) 
+    imageGray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+    corI1 = [[1 for _ in range(256)] for _ in range(256)]
+    sig1 =[0 for _ in range(256)]
+    distance1=0
+    # Calcule corrélogramme de l'image 1 avec distance d=1 : 
+    for x in range(0, 239, 1) : 
+        for y in range(0, 239, 1) : 
+            o = imageGray[x][y]
+            o1=imageGray[x-1][y-1]
+            corI1[o][o1]=corI1[o][o1]+1
+            o2=imageGray[x-1][y]
+            corI1[o][o2]=corI1[o][o2]+1
+            o3=imageGray[x-1][y+1]
+            corI1[o][o3]=corI1[o][o3]+1
+            o4=imageGray[x][y-1]
+            corI1[o][o4]=corI1[o][o4]+1
+            o6=imageGray[x][y+1]
+            corI1[o][o6]=corI1[o][o6]+1
+            o7=imageGray[x+1][y-1]
+            corI1[o][o7]=corI1[o][o7]+1
+            o8=imageGray[x+1][y]
+            corI1[o][o8]=corI1[o][o8]+1
+            o9=imageGray[x+1][y+1]
+            corI1[o][o9]=corI1[o][o9]+1
+    return sig1,distance1,corI1 
+
+sig1,distance1,corI1=correlogramme("/static/dataset/image1.png"); 
+sig2,distance2,corI2=correlogramme("/static/dataset/image2.png"); 
+sig3,distance3,corI3=correlogramme("/static/dataset/image3.png"); 
+
+
+# # Lire Image 1 : 
+# image = io.imread(os.getcwd()+'/static/dataset/image1.png') 
+# imageGray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+# # print(imageGray)
+# corI1 = [[1 for _ in range(256)] for _ in range(256)]
+# sig1 =[0 for _ in range(256)]
+# distance1=0
+
+# # Calcule corrélogramme de l'image 1 avec distance d=1 : 
+# for x in range(0, 239, 1) : 
+#   for y in range(0, 239, 1) : 
+#       o = imageGray[x][y]
+#       o1=imageGray[x-1][y-1]
+#       corI1[o][o1]=corI1[o][o1]+1
+#       o2=imageGray[x-1][y]
+#       corI1[o][o2]=corI1[o][o2]+1
+#       o3=imageGray[x-1][y+1]
+#       corI1[o][o3]=corI1[o][o3]+1
+#       o4=imageGray[x][y-1]
+#       corI1[o][o4]=corI1[o][o4]+1
+#       o6=imageGray[x][y+1]
+#       corI1[o][o6]=corI1[o][o6]+1
+#       o7=imageGray[x+1][y-1]
+#       corI1[o][o7]=corI1[o][o7]+1
+#       o8=imageGray[x+1][y]
+#       corI1[o][o8]=corI1[o][o8]+1
+#       o9=imageGray[x+1][y+1]
+#       corI1[o][o9]=corI1[o][o9]+1
       
-# Lire Image 2 : 
-img2 = io.imread(os.getcwd()+'/static/dataset/image2.png') 
-image2Gray = cv.cvtColor(img2, cv.COLOR_BGR2GRAY)
-# print(image2Gray)
-corI2 = [[1 for _ in range(256)] for _ in range(256)]
-sig2 =[0 for _ in range(256)]
-distance2=0
+# # Lire Image 2 : 
+# img2 = io.imread(os.getcwd()+'/static/dataset/image2.png') 
+# image2Gray = cv.cvtColor(img2, cv.COLOR_BGR2GRAY)
+# # print(image2Gray)
+# corI2 = [[1 for _ in range(256)] for _ in range(256)]
+# sig2 =[0 for _ in range(256)]
+# distance2=0
 
-#Calcule corrélogramme de l'image 2 avec distance d=1 : 
-for x in range(0, 239, 1) : 
-  for y in range(0, 239, 1) : 
-      o = image2Gray[x][y]
-      o1=image2Gray[x-1][y-1]
-      corI2[o][o1]=corI2[o][o1]+1
-      o2=image2Gray[x-1][y]
-      corI2[o][o2]=corI2[o][o2]+1
-      o3=image2Gray[x-1][y+1]
-      corI2[o][o3]=corI2[o][o3]+1
-      o4=image2Gray[x][y-1]
-      corI2[o][o4]=corI2[o][o4]+1
-      o6=image2Gray[x][y+1]
-      corI2[o][o6]=corI2[o][o6]+1
-      o7=image2Gray[x+1][y-1]
-      corI2[o][o7]=corI2[o][o7]+1
-      o8=image2Gray[x+1][y]
-      corI2[o][o8]=corI2[o][o8]+1
-      o9=image2Gray[x+1][y+1]
-      corI2[o][o9]=corI2[o][o9]+1
+# #Calcule corrélogramme de l'image 2 avec distance d=1 : 
+# for x in range(0, 239, 1) : 
+#   for y in range(0, 239, 1) : 
+#       o = image2Gray[x][y]
+#       o1=image2Gray[x-1][y-1]
+#       corI2[o][o1]=corI2[o][o1]+1
+#       o2=image2Gray[x-1][y]
+#       corI2[o][o2]=corI2[o][o2]+1
+#       o3=image2Gray[x-1][y+1]
+#       corI2[o][o3]=corI2[o][o3]+1
+#       o4=image2Gray[x][y-1]
+#       corI2[o][o4]=corI2[o][o4]+1
+#       o6=image2Gray[x][y+1]
+#       corI2[o][o6]=corI2[o][o6]+1
+#       o7=image2Gray[x+1][y-1]
+#       corI2[o][o7]=corI2[o][o7]+1
+#       o8=image2Gray[x+1][y]
+#       corI2[o][o8]=corI2[o][o8]+1
+#       o9=image2Gray[x+1][y+1]
+#       corI2[o][o9]=corI2[o][o9]+1
 
-#Lire Image 3 :
-img3 = io.imread(os.getcwd()+'/static/dataset/image3.png') 
-image3Gray = cv.cvtColor(img3, cv.COLOR_BGR2GRAY)
-# print(image3Gray)
-corI3 = [[1 for _ in range(256)] for _ in range(256)]
-sig3 =[0 for _ in range(256)]
-distance3=0
+# #Lire Image 3 :
+# img3 = io.imread(os.getcwd()+'/static/dataset/image3.png') 
+# image3Gray = cv.cvtColor(img3, cv.COLOR_BGR2GRAY)
+# # print(image3Gray)
+# corI3 = [[1 for _ in range(256)] for _ in range(256)]
+# sig3 =[0 for _ in range(256)]
+# distance3=0
 
-#Calcule corrélogramme de l'image 3 avec distance d=1 : 
-for x in range(0, 239, 1) : 
-  for y in range(0, 239, 1) : 
-      o = image3Gray[x][y]
-      o1=image3Gray[x-1][y-1]
-      corI3[o][o1]=corI3[o][o1]+1
-      o2=image3Gray[x-1][y]
-      corI3[o][o2]=corI3[o][o2]+1
-      o3=image3Gray[x-1][y+1]
-      corI3[o][o3]=corI3[o][o3]+1
-      o4=image3Gray[x][y-1]
-      corI3[o][o4]=corI3[o][o4]+1
-      o6=image3Gray[x][y+1]
-      corI3[o][o6]=corI3[o][o6]+1
-      o7=image3Gray[x+1][y-1]
-      corI3[o][o7]=corI3[o][o7]+1
-      o8=image3Gray[x+1][y]
-      corI3[o][o8]=corI3[o][o8]+1
-      o9=image3Gray[x+1][y+1]
-      corI3[o][o9]=corI3[o][o9]+1
+# #Calcule corrélogramme de l'image 3 avec distance d=1 : 
+# for x in range(0, 239, 1) : 
+#   for y in range(0, 239, 1) : 
+#       o = image3Gray[x][y]
+#       o1=image3Gray[x-1][y-1]
+#       corI3[o][o1]=corI3[o][o1]+1
+#       o2=image3Gray[x-1][y]
+#       corI3[o][o2]=corI3[o][o2]+1
+#       o3=image3Gray[x-1][y+1]
+#       corI3[o][o3]=corI3[o][o3]+1
+#       o4=image3Gray[x][y-1]
+#       corI3[o][o4]=corI3[o][o4]+1
+#       o6=image3Gray[x][y+1]
+#       corI3[o][o6]=corI3[o][o6]+1
+#       o7=image3Gray[x+1][y-1]
+#       corI3[o][o7]=corI3[o][o7]+1
+#       o8=image3Gray[x+1][y]
+#       corI3[o][o8]=corI3[o][o8]+1
+#       o9=image3Gray[x+1][y+1]
+#       corI3[o][o9]=corI3[o][o9]+1
 
 
 def upload_file(request):
@@ -107,9 +143,9 @@ def upload_file(request):
         data_dir = pathlib.Path(str(DATADIR))
         msg=data_dir
         #Lire Image Requete : 
-        img10 = io.imread(os.getcwd()+'/static/requete/'+str(msg)) 
-        img10Gray = cv.cvtColor(img10, cv.COLOR_BGR2GRAY)
-        print(img10Gray)
+        image0 = io.imread(os.getcwd()+'/static/requete/'+str(msg)) 
+        image0Gray = cv.cvtColor(image0, cv.COLOR_BGR2GRAY)
+        print(image0Gray)
         corI10 = [[1 for _ in range(256)] for _ in range(256)]
         sigreq =[0 for _ in range(256)]
         distance10=0
@@ -117,22 +153,22 @@ def upload_file(request):
         # Calcule corrélogramme de l'image Requete : 
         for x in range(0, 239, 1) : 
             for y in range(0, 239, 1) : 
-                o = img10Gray[x][y]
-                o1=img10Gray[x-1][y-1]
+                o = image0Gray[x][y]
+                o1=image0Gray[x-1][y-1]
                 corI10[o][o1]=corI10[o][o1]+1
-                o2=img10Gray[x-1][y]
+                o2=image0Gray[x-1][y]
                 corI10[o][o2]=corI10[o][o2]+1
-                o3=img10Gray[x-1][y+1]
+                o3=image0Gray[x-1][y+1]
                 corI10[o][o3]=corI10[o][o3]+1
-                o4=img10Gray[x][y-1]
+                o4=image0Gray[x][y-1]
                 corI10[o][o4]=corI10[o][o4]+1
-                o6=img10Gray[x][y+1]
+                o6=image0Gray[x][y+1]
                 corI10[o][o6]=corI10[o][o6]+1
-                o7=img10Gray[x+1][y-1]
+                o7=image0Gray[x+1][y-1]
                 corI10[o][o7]=corI10[o][o7]+1
-                o8=img10Gray[x+1][y]
+                o8=image0Gray[x+1][y]
                 corI10[o][o8]=corI10[o][o8]+1
-                o9=img10Gray[x+1][y+1]
+                o9=image0Gray[x+1][y+1]
                 corI10[o][o9]=corI10[o][o9]+1
 
         #Calcul de la signature 
