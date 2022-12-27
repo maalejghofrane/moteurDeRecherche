@@ -3,6 +3,7 @@ from .models import Predict
 from .forms import UploadFileForm
 import pathlib
 import os
+import glob
 from skimage import io
 import cv2 as cv 
 from scipy.spatial import distance
@@ -39,9 +40,26 @@ def correlogramme (emplacement):
             corI1[o][o9]=corI1[o][o9]+1
     return sig1,distance1,corI1 
 
+def readPictureDataSet () : 
+    images = [cv.imread(file) for file in glob.glob("/static/dataset/*.png")]
+    return images
+ 
+
 #0-Calculer le corrèlogramme de toute la dataset  
-dataSet = ['image1.png','image2.png','image3.png','image4.png','image5.png','image6.png',
-        'image7.png','image8.png','image9.png','image10.png']
+def readPictureDataSet () : 
+    images = [file for file in glob.glob("C:\moteurDeRecherche\static\dataset\*.png")]
+    return images
+dataSet = readPictureDataSet ()
+# correloImages=[]
+# signatureImages = []
+# for i in range(len(dataSet)):
+#     sig1,corrI1=correlogramme(dataSet[i])
+#     correloImages.append(corr)
+#     for i in range(0, 256, 1) : 
+#       sig1[i] = corrI1[i][i]
+#     signatureImages.append(sig1)  
+      
+
 sig1,distance1,corI1=correlogramme("/static/dataset/image1.png"); 
 sig2,distance2,corI2=correlogramme("/static/dataset/image2.png"); 
 sig3,distance3,corI3=correlogramme("/static/dataset/image3.png"); 
