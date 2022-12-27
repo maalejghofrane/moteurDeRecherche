@@ -54,35 +54,6 @@ def upload_file(request):
         data_dir = pathlib.Path(str(DATADIR))
         msg=data_dir
         sigreq,distance10,corI10=correlogramme("/static/requete/"+str(msg)); 
-        
-        # #Lire Image Requete : 
-        # image0 = io.imread(os.getcwd()+'/static/requete/'+str(msg)) 
-        # image0Gray = cv.cvtColor(image0, cv.COLOR_BGR2GRAY)
-        # print(image0Gray)
-        # corI10 = [[1 for _ in range(256)] for _ in range(256)]
-        # sigreq =[0 for _ in range(256)]
-        # distance10=0
-
-        # # Calcule corrélogramme de l'image Requete : 
-        # for x in range(0, 239, 1) : 
-        #     for y in range(0, 239, 1) : 
-        #         o = image0Gray[x][y]
-        #         o1=image0Gray[x-1][y-1]
-        #         corI10[o][o1]=corI10[o][o1]+1
-        #         o2=image0Gray[x-1][y]
-        #         corI10[o][o2]=corI10[o][o2]+1
-        #         o3=image0Gray[x-1][y+1]
-        #         corI10[o][o3]=corI10[o][o3]+1
-        #         o4=image0Gray[x][y-1]
-        #         corI10[o][o4]=corI10[o][o4]+1
-        #         o6=image0Gray[x][y+1]
-        #         corI10[o][o6]=corI10[o][o6]+1
-        #         o7=image0Gray[x+1][y-1]
-        #         corI10[o][o7]=corI10[o][o7]+1
-        #         o8=image0Gray[x+1][y]
-        #         corI10[o][o8]=corI10[o][o8]+1
-        #         o9=image0Gray[x+1][y+1]
-        #         corI10[o][o9]=corI10[o][o9]+1
 
         #Calcul de la signature 
         for i in range(0, 256, 1) : 
