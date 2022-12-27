@@ -7,7 +7,8 @@ from skimage import io
 import cv2 as cv 
 from scipy.spatial import distance
 
-
+def sort_item(item):
+    return item[2]
 #Création d'une fonction pour le calcul de corrélogramme : 
 def correlogramme (emplacement): 
     emplacement = str(emplacement)
@@ -38,13 +39,15 @@ def correlogramme (emplacement):
             corI1[o][o9]=corI1[o][o9]+1
     return sig1,distance1,corI1 
 
+#0-Calculer le corrèlogramme de toute la dataset  
+dataSet = ['image1.png','image2.png','image3.png','image4.png','image5.png','image6.png',
+        'image7.png','image8.png','image9.png','image10.png']
 sig1,distance1,corI1=correlogramme("/static/dataset/image1.png"); 
 sig2,distance2,corI2=correlogramme("/static/dataset/image2.png"); 
 sig3,distance3,corI3=correlogramme("/static/dataset/image3.png"); 
 
 def upload_file(request):
     if request.method=="POST":
-    # récupérer le chemin du répertoire courant
         print("Le répertoire courant est : " + os.getcwd())
         form = UploadFileForm(request.POST,request.FILES)
         file = request.FILES['file']
@@ -53,69 +56,33 @@ def upload_file(request):
         DATADIR = file
         data_dir = pathlib.Path(str(DATADIR))
         msg=data_dir
-        sigreq,distance10,corI10=correlogramme("/static/requete/"+str(msg)); 
+        #I-Calcul correlogramme de la requete 
+        sigreq,distanceReq,corReq=correlogramme("/static/requete/"+str(msg)); 
 
-        #Calcul de la signature 
+        #II-Calcul de la signature 
         for i in range(0, 256, 1) : 
             sig1[i] = corI1[i][i]
             sig2[i] = corI2[i][i]
             sig3[i] = corI3[i][i]
-            sigreq[i] = corI10[i][i]
+            sigreq[i] = corReq[i][i]
 
-        #Calcule de la distance euclidienne : 
-        d10vs1 = distance.euclidean(sigreq, sig1)
-        d10vs2 = distance.euclidean(sigreq, sig2)
-        d10vs3 = distance.euclidean(sigreq, sig3)
+        #III- Calcule de la distance euclidienne de l'image requete avec images dans dataset : 
+        distanceRequeteImage1 = distance.euclidean(sigreq, sig1)
+        distanceRequeteImage2 = distance.euclidean(sigreq, sig2)
+        distanceRequeteImage3 = distance.euclidean(sigreq, sig3)
 
-        #Initialisation des distances : 
-        distance1=0
-        distance2=0
-        distance3=0
-
-        #Calcule distancelokhra :
-        for i in range(0, 256, 1) : 
-         distance1=distance1+min(sigreq[i],sig1[i])
-        d10Inter1 = abs(1-(distance1/240**2))
-        print(d10Inter1)
-
-        for i in range(0, 256, 1) : 
-            distance2=distance2+min(sigreq[i],sig1[i])
-        d10Inter2 = abs(1-(distance1/240**2))
-        print(d10Inter2)
-
-        for i in range(0, 256, 1) : 
-            distance3=distance3+min(sigreq[i],sig1[i])
-            d10Inter3 = abs(1-(distance1/240**2))
-            print(d10Inter3)
-
-        #liste distance lokhra : 
-        listDistances = [('image1.png','distance1',d10Inter1),
-                         ('image2.png','distance2',d10Inter2),
-                         ('image3.png','distance3',d10Inter3)]
-        print(listDistances[0])
-
-        #Liste distance euclidienne : 
-        listDistancesEuclidienne = [('image1.png','distanceEuclidienne1',d10vs1),
-                                    ('image2.png','distanceEuclidienne2',d10vs2),
-                                    ('image3.png','distanceEuclidienne3',d10vs3)]
-        print(listDistancesEuclidienne[0][0])
-
-        dataSet = ['image1.png','image2.png','image3.png','image4.png','image5.png','image6.png',
-                    'image7.png','image8.png','image9.png','image10.png']
-
-        def sort_item(item):
-            return item[2]
-
-        #Trier la liste de distance euclidienne : 
+        listDistancesEuclidienne = [('image1.png','distanceEuclidienne1',distanceRequeteImage1),
+                                    ('image2.png','distanceEuclidienne2',distanceRequeteImage2),
+                                    ('image3.png','distanceEuclidienne3',distanceRequeteImage3)]
         listDistancesEuclidienne.sort(key=sort_item, reverse= False)
         print(listDistancesEuclidienne)
-
-        #Récupérer la liste des images :
+                                    
+        #IV-Récupérer la liste des images 'listImage' 
+        # et la liste de leurs signatures 'listeSignatureEuclidinne'
         listImage = []
         for i in listDistancesEuclidienne:
             listImage.append(i[0])
     
-        #Récupérer la valeur de la signature : 
         listeSignatureEuclidinne = []
         for i in listDistancesEuclidienne:
             listeSignatureEuclidinne.append(i[2])
