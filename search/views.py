@@ -7,9 +7,19 @@ import glob
 from skimage import io
 import cv2 as cv 
 from scipy.spatial import distance
+FOLDERDATASET = os.getcwd()+"\static\dataset\*.png"
 
 def sort_item(item):
     return item[2]
+
+def readPictureDataSet () : 
+    images = [file for file in glob.glob(FOLDERDATASET)]
+    print(images)
+    return images
+
+dataSet = readPictureDataSet ()
+
+
 #Création d'une fonction pour le calcul de corrélogramme : 
 def correlogramme (emplacement): 
     emplacement = str(emplacement)
@@ -40,16 +50,9 @@ def correlogramme (emplacement):
             corI1[o][o9]=corI1[o][o9]+1
     return sig1,distance1,corI1 
 
-def readPictureDataSet () : 
-    images = [cv.imread(file) for file in glob.glob("/static/dataset/*.png")]
-    return images
- 
 
 #0-Calculer le corrèlogramme de toute la dataset  
-def readPictureDataSet () : 
-    images = [file for file in glob.glob("C:\moteurDeRecherche\static\dataset\*.png")]
-    return images
-dataSet = readPictureDataSet ()
+
 # correloImages=[]
 # signatureImages = []
 # for i in range(len(dataSet)):
@@ -57,7 +60,8 @@ dataSet = readPictureDataSet ()
 #     correloImages.append(corr)
 #     for i in range(0, 256, 1) : 
 #       sig1[i] = corrI1[i][i]
-#     signatureImages.append(sig1)  
+#     signatureImages.append(sig1)
+#     
       
 
 sig1,distance1,corI1=correlogramme("/static/dataset/image1.png"); 
