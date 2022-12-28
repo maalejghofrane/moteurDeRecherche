@@ -7,6 +7,10 @@ import glob
 from skimage import io
 import cv2 as cv 
 from scipy.spatial import distance
+import numpy as np
+import matplotlib.pyplot as plt
+
+
 FOLDERDATASET = os.getcwd()+"\static\dataset\*.png"
 
 def sort_item(item):
@@ -101,3 +105,84 @@ def upload_file(request):
    
 def showHome(request):
     return render(request, 'search/home.html', {})
+
+#i- Recherche par couleur : 
+def getMoments(image):
+    
+    #extraction des composants RGB de l'image
+    R=image[:,:,0] 
+    G=image[:,:,1]
+    B=image[:,:,2]
+    
+    #calcule des moyennes et des ecart-type de chaque composants
+    colorFeature=[np.round(R.mean()),np.round(R.std()),np.round(G.mean()),np.round(G.std()),
+                  np.round(B.mean()),np.round(B.std())]
+    
+    #normalisation
+    colorFeature=colorFeature/np.array(colorFeature).mean()
+    
+    return colorFeature
+
+def CIBR_Recherche(Folder,imageRequete):
+    
+    imReq_features=getMoments(imageRequete) #extraction du vecteur descripteur de l'image requete
+    
+     #dictionnaire qui va contenir les distances eucludiennes % a l'image requete et le nom des image de dataset
+    dict_distance={}
+    
+    #lister les images contenues dans le dossier
+    for imagePath in glob.glob(Folder+ "/*.png"):
+        
+        #recupere le nom de l'image courant
+        image = cv.imread(imagePath) #lecture de l'image courant
+        
+        feature=getMoments(image) #recupere le vecetur descripteurs de l'image courant
+        
+        #calcule la distance euclidienne des vecteurs descripteurs de l'image courant du dataset et l'image requete
+        
+        distance= distance.euclidean(imReq_features,feature)
+        
+        
+        #ajoute la distance eucludienne et la path de l'image dans comme cle-valeur dans le dictionnaire
+        
+        dict_distance.setdefault(imagePath,distance) 
+        
+    return dict_distance
+
+def requete_RechercheCouleur(dataset,imageRequest,n=10):
+    
+    im_req=cv.imread(imageRequest) #lecture de l'image requete
+    
+    dict_res=CIBR_Recherche(dataset,imageRequete=im_req) 
+    
+    #trie du dictionnaire selon les distances eucludienne
+    
+    res_sorted=sorted(dict_res.items(),key = lambda x : x[1] )
+    
+    #recuperation des 5 premiere images les plus similaires
+    
+     
+    res=res_sorted[:n]
+    
+    #affichage des ces n premieres image similaires
+    
+    fig=plt.figure(figsize=(20,20))
+    plt.subplot(n-1,2,1)
+    
+    plt.imshow(im_req) #affichage de l'image Requete
+    
+    plt.title("Image Requete")
+    plt.axis("off")
+    
+    i=3
+
+    for key,value in res:
+        im=cv.imread(key)
+        
+        plt.subplot(n-1,2,i)
+        plt.imshow(im)
+        plt.title("Image Similaire : "+key.split('\\')[0])
+        plt.axis("off")
+        i=i+1
+        
+        
