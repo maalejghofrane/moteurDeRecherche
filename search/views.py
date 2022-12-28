@@ -10,20 +10,20 @@ from scipy.spatial import distance
 FOLDERDATASET = os.getcwd()+"\static\dataset\*.png"
 
 def sort_item(item):
-    return item[2]
+    return item[1]
 
 def readPictureDataSet () : 
     images = [file for file in glob.glob(FOLDERDATASET)]
     print(images)
     return images
-
 dataSet = readPictureDataSet ()
-
 
 #Création d'une fonction pour le calcul de corrélogramme : 
 def correlogramme (emplacement): 
+    sig =[0 for _ in range(256)]
     emplacement = str(emplacement)
-    image = io.imread(os.getcwd()+emplacement) 
+    nom = emplacement[36:]
+    image = io.imread(emplacement) 
     imageGray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
     corI1 = [[1 for _ in range(256)] for _ in range(256)]
     sig1 =[0 for _ in range(256)]
@@ -48,25 +48,22 @@ def correlogramme (emplacement):
             corI1[o][o8]=corI1[o][o8]+1
             o9=imageGray[x+1][y+1]
             corI1[o][o9]=corI1[o][o9]+1
-    return sig1,distance1,corI1 
+    return nom,sig,corI1 
 
+correloImages=[]
+signatureImages = []
+listeDesNom = []
+signatureEtNom = []
+for i in range(len(dataSet)):
+    nom,sig,corr=correlogramme(dataSet[i])
+    correloImages.append(corr)
+    for i in range(0, 256, 1) : 
+       sig[i] = corr[i][i]
+    signatureImages.append(sig) 
+    listeDesNom.append(nom)
+    signatureEtNom.append((nom,sig))
+print(signatureEtNom[0][1]) 
 
-#0-Calculer le corrèlogramme de toute la dataset  
-
-# correloImages=[]
-# signatureImages = []
-# for i in range(len(dataSet)):
-#     sig1,corrI1=correlogramme(dataSet[i])
-#     correloImages.append(corr)
-#     for i in range(0, 256, 1) : 
-#       sig1[i] = corrI1[i][i]
-#     signatureImages.append(sig1)
-#     
-      
-
-sig1,distance1,corI1=correlogramme("/static/dataset/image1.png"); 
-sig2,distance2,corI2=correlogramme("/static/dataset/image2.png"); 
-sig3,distance3,corI3=correlogramme("/static/dataset/image3.png"); 
 
 def upload_file(request):
     if request.method=="POST":
@@ -79,36 +76,25 @@ def upload_file(request):
         data_dir = pathlib.Path(str(DATADIR))
         msg=data_dir
         #I-Calcul correlogramme de la requete 
-        sigreq,distanceReq,corReq=correlogramme("/static/requete/"+str(msg)); 
+        nom,sigreq,corReq=correlogramme(os.getcwd()+"/static/requete/"+str(msg)); 
 
         #II-Calcul de la signature 
         for i in range(0, 256, 1) : 
-            sig1[i] = corI1[i][i]
-            sig2[i] = corI2[i][i]
-            sig3[i] = corI3[i][i]
             sigreq[i] = corReq[i][i]
 
         #III- Calcule de la distance euclidienne de l'image requete avec images dans dataset : 
-        distanceRequeteImage1 = distance.euclidean(sigreq, sig1)
-        distanceRequeteImage2 = distance.euclidean(sigreq, sig2)
-        distanceRequeteImage3 = distance.euclidean(sigreq, sig3)
-
-        listDistancesEuclidienne = [('image1.png','distanceEuclidienne1',distanceRequeteImage1),
-                                    ('image2.png','distanceEuclidienne2',distanceRequeteImage2),
-                                    ('image3.png','distanceEuclidienne3',distanceRequeteImage3)]
-        listDistancesEuclidienne.sort(key=sort_item, reverse= False)
-        print(listDistancesEuclidienne)
-                                    
-        #IV-Récupérer la liste des images 'listImage' 
-        # et la liste de leurs signatures 'listeSignatureEuclidinne'
-        listImage = []
-        for i in listDistancesEuclidienne:
-            listImage.append(i[0])
-    
-        listeSignatureEuclidinne = []
-        for i in listDistancesEuclidienne:
-            listeSignatureEuclidinne.append(i[2])
-        return render(request, "search/search.html",{'form':form, 'msg':msg,'list':listImage,'listeSignatureEuclidinne':listeSignatureEuclidinne})
+        nomEtDistanceEuclidienne = []
+        for i in range(len(dataSet)): 
+            distanceAvecRequete = distance.euclidean(sigreq, signatureEtNom[i][1])
+            nom = signatureEtNom[i][0]
+            nomEtDistanceEuclidienne.append((nom,distanceAvecRequete))
+            print(nomEtDistanceEuclidienne)
+        
+        nomEtDistanceEuclidienne.sort(key=sort_item, reverse= False)
+        print(nomEtDistanceEuclidienne)
+        nomEtDistanceEuclidienne= nomEtDistanceEuclidienne [:6]
+        
+        return render(request, "search/search.html",{'form':form, 'msg':msg,'list':nomEtDistanceEuclidienne})
     else : 
         form=UploadFileForm()
         return render(request, "search/search.html",{'form':form})

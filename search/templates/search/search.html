@@ -54,13 +54,9 @@ font-weight: bold;
         <div class="row">
         {% for o in list %}
         <div class="col-sm-4">
-        <img  src="static/dataset/{{o}}" class="imageResultat"
+        <img  src="static/dataset/{{o.0}}" class="imageResultat"
         alt="image requete" style="width: 400px;"/>
-        </div>
-        {% endfor %}
-        {% for sign in listeSignatureEuclidinne %}
-        <div class="col-sm-4">
-        <p class="distance"> distance : {{sign}} </p>
+        <i class="distance">distance : {{o.1}}</i>
         </div>
         {% endfor %}
         {% endif %}
