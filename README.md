@@ -4,3 +4,7 @@
         username : ghofran 
         email : ghofran.maalej@etudiant-isi.utm.tn
         password : 12345678
+
+# Installation : 
+pip install -r req.txt
+python manage.py runserver
