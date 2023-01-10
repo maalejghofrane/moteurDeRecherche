@@ -9,6 +9,7 @@ import cv2 as cv
 from scipy.spatial import distance
 import numpy as np
 import matplotlib.pyplot as plt
+import imutils
 
 
 FOLDERDATASET = os.getcwd()+"\static\dataset\*.png"
@@ -140,12 +141,12 @@ def CIBR_Recherche(Folder,imageRequete):
         
         #calcule la distance euclidienne des vecteurs descripteurs de l'image courant du dataset et l'image requete
         
-        distance= distance.euclidean(imReq_features,feature)
+        dist= distance.euclidean(imReq_features,feature)
         
         
         #ajoute la distance eucludienne et la path de l'image dans comme cle-valeur dans le dictionnaire
         
-        dict_distance.setdefault(imagePath,distance) 
+        dict_distance.setdefault(imagePath,dist) 
         
     return dict_distance
 
@@ -173,6 +174,7 @@ def requete_RechercheCouleur(dataset,imageRequest,n=10):
     
     plt.title("Image Requete")
     plt.axis("off")
+    plt.show()
     
     i=3
 
@@ -183,6 +185,105 @@ def requete_RechercheCouleur(dataset,imageRequest,n=10):
         plt.imshow(im)
         plt.title("Image Similaire : "+key.split('\\')[0])
         plt.axis("off")
+        plt.show()
         i=i+1
+#ii- Recherche par histogramme : 
+def hsvHistogram(image):
+    
+    #convertir l'image RGB en HSV
+    image = cv.cvtColor(image, cv.COLOR_RGB2HSV)
+    bins=(8,2,2)
+    hist = cv.calcHist([image], [0, 1, 2],None, bins,
+                        [0, 256, 0, 256, 0, 256])
+    
+    #normalisation des histogrammes de couleur afin que chaque histogramme soit représenté par le nombre de pourcentages 
+    #relatifs pour un groupe particulier et non par le nombre entier pour chaque groupe.La normalisation garantira que les images 
+    #ayant un contenu similaire mais des dimensions radicalement différentes seront toujours «similaires» une fois que nous
+    #aurons appliqué notre fonction de similarité
+    
+    if imutils.is_cv2():
+        hist = cv.normalize(hist).flatten()# otherwise handle for OpenCV 3+
+    else:
+        hist = cv.normalize(hist, hist).flatten()
+        # return histogram
+
+    return hist
+
+def getFeatures(image):
+    
+    #concatenation du vecteurs de moments avec l'histogramme
+    features= np.concatenate((getMoments(image),hsvHistogram(image)))
+    
+    
+    
+    return features
+
+def CIBR_HSVHistogramme(Folder,imageRequete):
+    
+    imReq_features=getFeatures(imageRequete) #extraction du vecteur descripteur de l'image requete
+    
+     #dictionnaire qui va contenir les distances eucludiennes % a l'image requete et le nom des image de dataset
+    dict_distance={}
+    
+    #lister les images contenues dans le dossier
+    for imagePath in glob.glob(Folder+ "/*.png"):
+        
+        #recupere le nom de l'image courant
+        image = cv.imread(imagePath) #lecture de l'image courant
+        
+        feature=getFeatures(image) #recupere le vecetur descripteurs de l'image courant
+        
+        #calcule la distance euclidienne des vecteurs descripteurs de l'image courant du dataset et l'image requete
+        
+        dist= distance.euclidean(imReq_features,feature)
         
         
+        #ajoute la distance eucludienne et la path de l'image dans comme cle-valeur dans le dictionnaire
+        
+        dict_distance.setdefault(imagePath,dist) 
+        
+    return dict_distance
+
+def requete_HSVHistRech(dataset,imageRequest,n=5):
+    
+    im_req=cv.imread(imageRequest) #lecture de l'image requete
+    
+    dict_res=CIBR_HSVHistogramme(dataset,im_req) 
+    
+    #trie du dictionnaire selon les distances eucludienne
+    
+    res_sorted=sorted(dict_res.items(),key = lambda x : x[1] )
+    
+     #recuperation des 5 premiere images les plus similaires
+    
+    res=res_sorted[:n]
+    
+    #affichage des ces n premieres image similaires
+    
+    fig=plt.figure(figsize=(20,20))
+    plt.subplot(n-1,2,1)
+    
+    plt.imshow(im_req) #affichage de l'image Requete
+    
+    plt.title("Image Requete")
+    plt.axis("off")
+    plt.show()
+    
+    i=3
+
+    for key,value in res:
+        im=cv.imread(key)
+        
+        plt.subplot(n-1,2,i)
+        plt.imshow(im)
+        plt.title("Image Similaire : "+key.split('\\')[0])
+        plt.axis("off")
+        plt.show()
+        i=i+1
+
+
+dataset=os.getcwd()+'\dataset'
+imageRequete = os.getcwd()+'\dataset\image1.png'
+
+#requete_RechercheCouleur(dataset,imageRequete)
+#requete_HSVHistRech(dataset,imageRequete)
