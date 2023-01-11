@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import imutils
 
 
-FOLDERDATASET = os.getcwd()+"\static\dataset\*.png"
+FOLDERDATASET = os.getcwd()+"\static\dataset\*"
 
 def sort_item(item):
     return item[1]
@@ -54,6 +54,9 @@ def correlogramme (emplacement):
             o9=imageGray[x+1][y+1]
             corI1[o][o9]=corI1[o][o9]+1
     return nom,sig,corI1 
+def cooccurence (emplacement) : 
+    return None; 
+
 
 correloImages=[]
 signatureImages = []
@@ -97,7 +100,7 @@ def upload_file(request):
         
         nomEtDistanceEuclidienne.sort(key=sort_item, reverse= False)
         print(nomEtDistanceEuclidienne)
-        nomEtDistanceEuclidienne= nomEtDistanceEuclidienne [:6]
+        nomEtDistanceEuclidienne= nomEtDistanceEuclidienne [:10]
         
         return render(request, "search/search.html",{'form':form, 'msg':msg,'list':nomEtDistanceEuclidienne})
     else : 
