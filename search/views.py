@@ -54,8 +54,26 @@ def correlogramme (emplacement):
             o9=imageGray[x+1][y+1]
             corI1[o][o9]=corI1[o][o9]+1
     return nom,sig,corI1 
+
 def cooccurence (emplacement) : 
-    return None; 
+    sig =[0 for _ in range(256)]
+    # Load the image
+    emplacement = str(emplacement)
+    nom = emplacement[36:]
+    image = io.imread(emplacement)
+    imageGray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+    # Calculate the co-occurrence matrix
+    cooc_matrix = np.zeros((256, 256))
+    for i in range(imageGray.shape[0] - 1):
+        for j in range(imageGray.shape[1] - 1):
+            x = imageGray[i, j]
+            y = imageGray[i, j + 1]
+            cooc_matrix[x, y] += 1
+
+    # Normalize the co-occurrence matrix
+    cooc_matrix = cooc_matrix / np.sum(cooc_matrix)
+    return nom,sig,cooc_matrix; 
+
 
 
 correloImages=[]
@@ -63,7 +81,7 @@ signatureImages = []
 listeDesNom = []
 signatureEtNom = []
 for i in range(len(dataSet)):
-    nom,sig,corr=correlogramme(dataSet[i])
+    nom,sig,corr=cooccurence(dataSet[i])
     correloImages.append(corr)
     for i in range(0, 256, 1) : 
        sig[i] = corr[i][i]
@@ -84,7 +102,7 @@ def upload_file(request):
         data_dir = pathlib.Path(str(DATADIR))
         msg=data_dir
         #I-Calcul correlogramme de la requete 
-        nom,sigreq,corReq=correlogramme(os.getcwd()+"/static/requete/"+str(msg)); 
+        nom,sigreq,corReq=cooccurence(os.getcwd()+"/static/requete/"+str(msg)); 
 
         #II-Calcul de la signature 
         for i in range(0, 256, 1) : 
