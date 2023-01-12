@@ -55,6 +55,29 @@ def correlogramme (emplacement):
             corI1[o][o9]=corI1[o][o9]+1
     return nom,sig,corI1 
 
+def correlogramme2 (emplacement): 
+    sig =[0 for _ in range(256)]
+    emplacement = str(emplacement)
+    nom = emplacement[36:]
+    image = io.imread(emplacement) 
+    gray_image  = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+    # Create an empty correlogram
+    correlogram = np.zeros((256, 256))
+    # Iterate over the rows and columns of the image
+    for i in range(gray_image.shape[0]):
+        for j in range(gray_image.shape[1]):
+            x = gray_image[i, j]
+        # Iterate over the surrounding pixels
+            for k in range(-1, 2):
+                for l in range(-1, 2):
+                    if i + k >= 0 and i + k < gray_image.shape[0] and j + l >= 0 and j + l < gray_image.shape[1]:
+                        y = gray_image[i + k, j + l]
+                        correlogram[x, y] += 1
+    # Normalize the correlogram
+    correlogram = correlogram / np.sum(correlogram)
+    return nom,sig,correlogram 
+
+
 def cooccurence (emplacement) : 
     sig =[0 for _ in range(256)]
     # Load the image
@@ -69,19 +92,34 @@ def cooccurence (emplacement) :
             x = imageGray[i, j]
             y = imageGray[i, j + 1]
             cooc_matrix[x, y] += 1
-
     # Normalize the co-occurrence matrix
     cooc_matrix = cooc_matrix / np.sum(cooc_matrix)
     return nom,sig,cooc_matrix; 
 
+def histogramme (emplacement) :
+    sig=[] 
+    emplacement = str(emplacement)
+    nom = emplacement[36:]
+    img = cv.imread(emplacement,0)
+    h = cv.calcHist([img], [0], None, [256], [0, 255])
+    return nom,h 
+
+def diff_histogramme(h_requete,histDataSet): 
+    d_Herq_HdataSet = 1 - (cv.compareHist(h_requete, 
+                            histDataSet, 
+                            cv.HISTCMP_INTERSECT))/(240*240)
+
+    return d_Herq_HdataSet
 
 
+#I- with correlogramme
+#[Commande offLine]
 correloImages=[]
 signatureImages = []
 listeDesNom = []
 signatureEtNom = []
 for i in range(len(dataSet)):
-    nom,sig,corr=cooccurence(dataSet[i])
+    nom,sig,corr=correlogramme2(dataSet[i])
     correloImages.append(corr)
     for i in range(0, 256, 1) : 
        sig[i] = corr[i][i]
@@ -89,9 +127,58 @@ for i in range(len(dataSet)):
     listeDesNom.append(nom)
     signatureEtNom.append((nom,sig))
 print(signatureEtNom[0][1]) 
-
-
+#I- with correlogramme
 def upload_file(request):
+    if request.method=="POST":
+        print("Le répertoire courant est : " + os.getcwd())
+        form = UploadFileForm(request.POST,request.FILES)
+        file = request.FILES['file']
+        document = Predict.objects.create(name='requete', file=file)
+        document.save()
+        DATADIR = file
+        data_dir = pathlib.Path(str(DATADIR))
+        msg=data_dir
+        #I-Calcul correlogramme de la requete 
+        nom,sigreq,corReq=correlogramme2(os.getcwd()+"/static/requete/"+str(msg)); 
+
+        #II-Calcul de la signature 
+        for i in range(0, 256, 1) : 
+            sigreq[i] = corReq[i][i]
+
+        #III- Calcule de la distance euclidienne de l'image requete avec images dans dataset : 
+        nomEtDistanceEuclidienne = []
+        for i in range(len(dataSet)): 
+            distanceAvecRequete = distance.euclidean(sigreq, signatureEtNom[i][1])
+            nom = signatureEtNom[i][0]
+            nomEtDistanceEuclidienne.append((nom,distanceAvecRequete))
+            print(nomEtDistanceEuclidienne)
+        
+        nomEtDistanceEuclidienne.sort(key=sort_item, reverse= False)
+        print(nomEtDistanceEuclidienne)
+        nomEtDistanceEuclidienne= nomEtDistanceEuclidienne [:10]
+        
+        return render(request, "search/search.html",{'form':form, 'msg':msg,'list':nomEtDistanceEuclidienne})
+    else : 
+        form=UploadFileForm()
+        return render(request, "search/search.html",{'form':form})
+
+#II- with coocurrence
+#[Commande offLine]
+# correloImages=[]
+# signatureImages = []
+# listeDesNom = []
+# signatureEtNom = []
+# for i in range(len(dataSet)):
+#     nom,sig,corr=cooccurence(dataSet[i])
+#     correloImages.append(corr)
+#     for i in range(0, 256, 1) : 
+#        sig[i] = corr[i][i]
+#     signatureImages.append(sig) 
+#     listeDesNom.append(nom)
+#     signatureEtNom.append((nom,sig))
+# print(signatureEtNom[0][1])
+#II- with coocurrence
+def upload_file_2(request):
     if request.method=="POST":
         print("Le répertoire courant est : " + os.getcwd())
         form = UploadFileForm(request.POST,request.FILES)
@@ -121,6 +208,49 @@ def upload_file(request):
         nomEtDistanceEuclidienne= nomEtDistanceEuclidienne [:10]
         
         return render(request, "search/search.html",{'form':form, 'msg':msg,'list':nomEtDistanceEuclidienne})
+    else : 
+        form=UploadFileForm()
+        return render(request, "search/search.html",{'form':form})
+        
+#III with histogramme
+def upload_file_3(request):
+    #Calcul tous les histogrammes
+    histogrammes=[]
+    listeDesNom = []
+    histEtNom = []
+    for i in range(len(dataSet)):
+        nom,hist=histogramme(dataSet[i])
+        histogrammes.append(hist)
+        listeDesNom.append(nom)
+        histEtNom.append((nom,hist))
+    # print(histEtNom[0][1]) 
+    # print(histEtNom[0]) 
+    if request.method=="POST":
+        print("Le répertoire courant est : " + os.getcwd())
+        form = UploadFileForm(request.POST,request.FILES)
+        file = request.FILES['file']
+        document = Predict.objects.create(name='requete', file=file)
+        document.save()
+        DATADIR = file
+        data_dir = pathlib.Path(str(DATADIR))
+        msg=data_dir
+
+        #I- calcul l'histogramme de la requete
+        nomRequete,h_requete = histogramme(os.getcwd()+"/static/requete/"+str(msg))
+
+        #II- Calcule de la distance diffHistogramme : 
+        nomEtDistanceHistogramme = []
+        for i in range(len(dataSet)): 
+            distanceAvecRequete = diff_histogramme(h_requete,histEtNom[i][1])
+            nom = histEtNom[i][0]
+            nomEtDistanceHistogramme.append((nom,distanceAvecRequete))
+            print(nomEtDistanceHistogramme)
+        
+        nomEtDistanceHistogramme.sort(key=sort_item, reverse= False)
+        print(nomEtDistanceHistogramme)
+        nomEtDistanceHistogramme= nomEtDistanceHistogramme [:10]
+        
+        return render(request, "search/search.html",{'form':form, 'msg':msg,'list':nomEtDistanceHistogramme})
     else : 
         form=UploadFileForm()
         return render(request, "search/search.html",{'form':form})
