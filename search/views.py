@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import imutils
 import pickle
 
-
+NB = 6 
 FOLDERDATASET = os.getcwd()+"\static\dataset\*"
 
 def sort_item(item):
@@ -111,6 +111,7 @@ def diff_histogramme(h_requete,histDataSet):
 
     return d_Herq_HdataSet
 
+#0 with correlogramme 1 
 def upload_file(request):
     if request.method=="POST":
         print("Le répertoire courant est : " + os.getcwd())
@@ -122,7 +123,7 @@ def upload_file(request):
         data_dir = pathlib.Path(str(DATADIR))
         msg=data_dir
         #I-Calcul correlogramme de la requete 
-        nom,sigreq,corReq=correlogramme2(os.getcwd()+"/static/requete/"+str(msg)); 
+        nom,sigreq,corReq=correlogramme(os.getcwd()+"/static/requete/"+str(msg)); 
 
         #II-Calcul de la signature 
         for i in range(0, 256, 1) : 
@@ -141,7 +142,44 @@ def upload_file(request):
         
         nomEtDistanceEuclidienne.sort(key=sort_item, reverse= False)
         print(nomEtDistanceEuclidienne)
-        nomEtDistanceEuclidienne= nomEtDistanceEuclidienne [:10]
+        nomEtDistanceEuclidienne= nomEtDistanceEuclidienne [:NB]
+        
+        return render(request, "search/search.html",{'form':form, 'msg':msg,'list':nomEtDistanceEuclidienne})
+    else : 
+        form=UploadFileForm()
+        return render(request, "search/search.html",{'form':form})
+#I- with correlogramme 2 
+def upload_file(request):
+    if request.method=="POST":
+        print("Le répertoire courant est : " + os.getcwd())
+        form = UploadFileForm(request.POST,request.FILES)
+        file = request.FILES['file']
+        document = Predict.objects.create(name='requete', file=file)
+        document.save()
+        DATADIR = file
+        data_dir = pathlib.Path(str(DATADIR))
+        msg=data_dir
+        #I-Calcul correlogramme de la requete 
+        nom,sigreq,corReq=correlogramme2(os.getcwd()+"/static/requete/"+str(msg)); 
+
+        #II-Calcul de la signature 
+        for i in range(0, 256, 1) : 
+            sigreq[i] = corReq[i][i]
+        #III- Lire le fichier de correlogramme
+        with open(os.getcwd()+"/static/signatures/signaturesCorrelogramme2", "rb") as f:
+            signatureEtNom = pickle.load(f,encoding="latin1")
+        
+        #III- Calcule de la distance euclidienne de l'image requete avec images dans dataset : 
+        nomEtDistanceEuclidienne = []
+        for i in range(len(dataSet)): 
+            distanceAvecRequete = distance.euclidean(sigreq, signatureEtNom[i][1])
+            nom = signatureEtNom[i][0]
+            nomEtDistanceEuclidienne.append((nom,distanceAvecRequete))
+            print(nomEtDistanceEuclidienne)
+        
+        nomEtDistanceEuclidienne.sort(key=sort_item, reverse= False)
+        print(nomEtDistanceEuclidienne)
+        nomEtDistanceEuclidienne= nomEtDistanceEuclidienne [:NB]
         
         return render(request, "search/search.html",{'form':form, 'msg':msg,'list':nomEtDistanceEuclidienne})
     else : 
@@ -180,7 +218,7 @@ def upload_file_2(request):
         
         nomEtDistanceEuclidienne.sort(key=sort_item, reverse= False)
         print(nomEtDistanceEuclidienne)
-        nomEtDistanceEuclidienne= nomEtDistanceEuclidienne [:10]
+        nomEtDistanceEuclidienne= nomEtDistanceEuclidienne [:NB]
         
         return render(request, "search/search.html",{'form':form, 'msg':msg,'list':nomEtDistanceEuclidienne})
     else : 
@@ -201,7 +239,9 @@ def upload_file_3(request):
 
         #I- calcul l'histogramme de la requete
         nomRequete,h_requete = histogramme(os.getcwd()+"/static/requete/"+str(msg))
-
+        #III- Lire le fichier de cooccurrence
+        with open(os.getcwd()+"/static/signatures/signaturesHistogramme", "rb") as f:
+            histEtNom = pickle.load(f,encoding="latin1")
         #II- Calcule de la distance diffHistogramme : 
         nomEtDistanceHistogramme = []
         for i in range(len(dataSet)): 
@@ -212,12 +252,47 @@ def upload_file_3(request):
         
         nomEtDistanceHistogramme.sort(key=sort_item, reverse= False)
         print(nomEtDistanceHistogramme)
-        nomEtDistanceHistogramme= nomEtDistanceHistogramme [:10]
+        nomEtDistanceHistogramme= nomEtDistanceHistogramme [:NB]
         
         return render(request, "search/search.html",{'form':form, 'msg':msg,'list':nomEtDistanceHistogramme})
     else : 
         form=UploadFileForm()
         return render(request, "search/search.html",{'form':form})
-   
+
+#IV combinaison corellogramme et histogramme
+def upload_file_4(request):
+    if request.method=="POST":
+        print("Le répertoire courant est : " + os.getcwd())
+        form = UploadFileForm(request.POST,request.FILES)
+        file = request.FILES['file']
+        document = Predict.objects.create(name='requete', file=file)
+        document.save()
+        DATADIR = file
+        data_dir = pathlib.Path(str(DATADIR))
+        msg=data_dir
+
+        #I- calcul l'histogramme de la requete
+        nomRequete,h_requete = histogramme(os.getcwd()+"/static/requete/"+str(msg))
+        #III- Lire le fichier de cooccurrence
+        with open(os.getcwd()+"/static/signatures/signaturesCorrelogrammeEtHistogramme", "rb") as f:
+            histEtNom = pickle.load(f,encoding="latin1")
+        #II- Calcule de la distance diffHistogramme : 
+        nomEtDistanceHistogramme = []
+        for i in range(len(dataSet)): 
+            distanceAvecRequete = diff_histogramme(h_requete,histEtNom[i][1])
+            nom = histEtNom[i][0]
+            nomEtDistanceHistogramme.append((nom,distanceAvecRequete))
+            print(nomEtDistanceHistogramme)
+        
+        nomEtDistanceHistogramme.sort(key=sort_item, reverse= False)
+        print(nomEtDistanceHistogramme)
+        nomEtDistanceHistogramme= nomEtDistanceHistogramme [:NB]
+        
+        return render(request, "search/search.html",{'form':form, 'msg':msg,'list':nomEtDistanceHistogramme})
+    else : 
+        form=UploadFileForm()
+        return render(request, "search/search.html",{'form':form})
+
 def showHome(request):
     return render(request, 'search/home.html', {})
+
