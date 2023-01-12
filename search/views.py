@@ -112,7 +112,7 @@ def diff_histogramme(h_requete,histDataSet):
     return d_Herq_HdataSet
 
 #0 with correlogramme 1 
-def upload_file(request):
+def upload_file_0(request):
     if request.method=="POST":
         print("Le répertoire courant est : " + os.getcwd())
         form = UploadFileForm(request.POST,request.FILES)
