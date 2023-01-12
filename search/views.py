@@ -10,6 +10,7 @@ from scipy.spatial import distance
 import numpy as np
 import matplotlib.pyplot as plt
 import imutils
+import pickle
 
 
 FOLDERDATASET = os.getcwd()+"\static\dataset\*"
@@ -77,7 +78,6 @@ def correlogramme2 (emplacement):
     correlogram = correlogram / np.sum(correlogram)
     return nom,sig,correlogram 
 
-
 def cooccurence (emplacement) : 
     sig =[0 for _ in range(256)]
     # Load the image
@@ -111,23 +111,6 @@ def diff_histogramme(h_requete,histDataSet):
 
     return d_Herq_HdataSet
 
-
-#I- with correlogramme
-#[Commande offLine]
-correloImages=[]
-signatureImages = []
-listeDesNom = []
-signatureEtNom = []
-for i in range(len(dataSet)):
-    nom,sig,corr=correlogramme2(dataSet[i])
-    correloImages.append(corr)
-    for i in range(0, 256, 1) : 
-       sig[i] = corr[i][i]
-    signatureImages.append(sig) 
-    listeDesNom.append(nom)
-    signatureEtNom.append((nom,sig))
-print(signatureEtNom[0][1]) 
-#I- with correlogramme
 def upload_file(request):
     if request.method=="POST":
         print("Le répertoire courant est : " + os.getcwd())
@@ -144,7 +127,10 @@ def upload_file(request):
         #II-Calcul de la signature 
         for i in range(0, 256, 1) : 
             sigreq[i] = corReq[i][i]
-
+        #III- Lire le fichier de correlogramme
+        with open(os.getcwd()+"/static/signatures/signaturesCorrelogramme", "rb") as f:
+            signatureEtNom = pickle.load(f,encoding="latin1")
+        
         #III- Calcule de la distance euclidienne de l'image requete avec images dans dataset : 
         nomEtDistanceEuclidienne = []
         for i in range(len(dataSet)): 
@@ -163,21 +149,6 @@ def upload_file(request):
         return render(request, "search/search.html",{'form':form})
 
 #II- with coocurrence
-#[Commande offLine]
-# correloImages=[]
-# signatureImages = []
-# listeDesNom = []
-# signatureEtNom = []
-# for i in range(len(dataSet)):
-#     nom,sig,corr=cooccurence(dataSet[i])
-#     correloImages.append(corr)
-#     for i in range(0, 256, 1) : 
-#        sig[i] = corr[i][i]
-#     signatureImages.append(sig) 
-#     listeDesNom.append(nom)
-#     signatureEtNom.append((nom,sig))
-# print(signatureEtNom[0][1])
-#II- with coocurrence
 def upload_file_2(request):
     if request.method=="POST":
         print("Le répertoire courant est : " + os.getcwd())
@@ -194,8 +165,12 @@ def upload_file_2(request):
         #II-Calcul de la signature 
         for i in range(0, 256, 1) : 
             sigreq[i] = corReq[i][i]
+        
+        #III- Lire le fichier de cooccurrence
+        with open(os.getcwd()+"/static/signatures/signaturesCooccurrence", "rb") as f:
+            signatureEtNom = pickle.load(f,encoding="latin1")
 
-        #III- Calcule de la distance euclidienne de l'image requete avec images dans dataset : 
+        #IV- Calcule de la distance euclidienne de l'image requete avec images dans dataset : 
         nomEtDistanceEuclidienne = []
         for i in range(len(dataSet)): 
             distanceAvecRequete = distance.euclidean(sigreq, signatureEtNom[i][1])
@@ -214,17 +189,6 @@ def upload_file_2(request):
         
 #III with histogramme
 def upload_file_3(request):
-    #Calcul tous les histogrammes
-    histogrammes=[]
-    listeDesNom = []
-    histEtNom = []
-    for i in range(len(dataSet)):
-        nom,hist=histogramme(dataSet[i])
-        histogrammes.append(hist)
-        listeDesNom.append(nom)
-        histEtNom.append((nom,hist))
-    # print(histEtNom[0][1]) 
-    # print(histEtNom[0]) 
     if request.method=="POST":
         print("Le répertoire courant est : " + os.getcwd())
         form = UploadFileForm(request.POST,request.FILES)

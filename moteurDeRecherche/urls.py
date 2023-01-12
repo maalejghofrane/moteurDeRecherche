@@ -21,5 +21,5 @@ from search import views as search
 urlpatterns = [
 #    path('admin/', admin.site.urls),
     path('admin/', admin.site.urls),
-    path('', search.upload_file_3, name = "list"),
+    path('', search.upload_file, name = "list"),
 ]
